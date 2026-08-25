@@ -131,13 +131,14 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     )
 
     before_backfill = pipeline.snapshot().result_hash
+    raw_before_backfill = pipeline.counts()["raw_order_events"]
     pipeline.process(backfill, "backfill")
     backfill_snapshot = pipeline.snapshot().to_dict()
     backfill_current = {row["order_id"]: row for row in backfill_snapshot["orders_current"]}
     backfill_pass = (
         backfill_current["o2"]["event_id"] == "e3"
         and pipeline.snapshot().result_hash == before_backfill
-        and pipeline.counts()["raw_order_events"] == 5
+        and pipeline.counts()["raw_order_events"] == raw_before_backfill + 1
     )
     control.record_gate(
         args.run_id,
@@ -215,4 +216,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
