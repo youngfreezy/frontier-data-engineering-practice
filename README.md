@@ -15,11 +15,13 @@ The benchmark is deliberately narrow. Its purpose is to exercise the failure mod
 
 ```sh
 uv sync
-uv run pytest
-uv run frontier-practice --help
+./scripts/test.sh
+PYTHONPATH=src uv run python -m practice_pipeline.benchmark --help
 ```
 
 The repository also includes `scripts/run_clean_benchmark.sh`. It creates two detached Git worktrees at the same commit, runs the full benchmark in each, and fails unless both result hashes match and every required gate passes.
+
+The explicit `PYTHONPATH` keeps the commands reliable on Python builds that skip hidden editable-install `.pth` files.
 
 ## Tables
 
@@ -29,4 +31,3 @@ The repository also includes `scripts/run_clean_benchmark.sh`. It creates two de
 - `pipeline_runs`: a lightweight operational log for completed and failed attempts.
 
 All amounts use integer cents. The pipeline uses explicit transactions. An injected failure after raw staging must leave every business table unchanged.
-

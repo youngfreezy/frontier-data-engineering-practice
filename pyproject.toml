@@ -9,9 +9,6 @@ dependencies = [
   "frontier-eval-control-plane",
 ]
 
-[project.scripts]
-frontier-practice = "practice_pipeline.benchmark:main"
-
 [dependency-groups]
 dev = [
   "pytest>=8.3",
