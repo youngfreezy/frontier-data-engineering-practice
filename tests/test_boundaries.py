@@ -53,6 +53,33 @@ def test_reusable_skill_local_markdown_references_resolve() -> None:
         assert SKILL.joinpath(target).is_file(), target
 
 
+def test_skill_embeds_production_gate_baseline_and_expanded_catalog() -> None:
+    skill_text = SKILL.joinpath("SKILL.md").read_text(encoding="utf-8")
+    gates_text = SKILL.joinpath("references", "gates.md").read_text(
+        encoding="utf-8"
+    )
+    for phrase in (
+        "requirements hash",
+        "Grain and keys",
+        "Semantic equality",
+        "Plan, scale, layout, and cost",
+        "Snapshot",
+    ):
+        assert phrase in skill_text
+    for gate in (
+        "join_cardinality",
+        "distribution_shift",
+        "privacy",
+        "access_boundary",
+        "lineage",
+        "cost",
+        "catalog_drift",
+        "determinism",
+        "semantic_equality",
+    ):
+        assert f"`{gate}`" in gates_text
+
+
 def test_root_package_is_dependency_free_and_practice_owns_duckdb() -> None:
     root_project = tomllib.loads((ROOT / "pyproject.toml").read_text(encoding="utf-8"))
     practice_project = tomllib.loads(

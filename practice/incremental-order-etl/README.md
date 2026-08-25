@@ -10,4 +10,4 @@ practice/incremental-order-etl/scripts/test.sh
 practice/incremental-order-etl/scripts/run_clean_benchmark.sh
 ```
 
-The clean benchmark runs two detached worktrees from the same repository commit. It requires passing unit, skill-CLI, late-data, duplicate, backfill, idempotency, and recovery gates, then compares the canonical result hashes.
+The clean benchmark runs two detached worktrees from the same repository commit and requirements, dataset, and environment hashes. It requires passing clean-checkout, unit, skill-CLI, late-data, duplicate, backfill, idempotency, and recovery gates; revalidates the result and log artifacts; records the solved outcome and row measurement; then requires an identity-safe comparison with matching canonical result hashes.

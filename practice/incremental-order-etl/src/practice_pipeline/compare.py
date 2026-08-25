@@ -16,7 +16,6 @@ def main() -> int:
     parser.add_argument("run_ids", nargs=2)
     args = parser.parse_args()
     result = ControlPlane(args.state).compare(args.run_ids)
-    result["passed"] = result["matching_result_hashes"] and result["all_verified"]
     Path(args.output).write_text(
         json.dumps(result, indent=2, sort_keys=True) + "\n", encoding="utf-8"
     )
@@ -26,4 +25,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

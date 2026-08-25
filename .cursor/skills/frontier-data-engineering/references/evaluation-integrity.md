@@ -28,6 +28,12 @@ Hash the bundle or its manifest before analysis. A later download or regenerated
 
 Do not let a timeout, infrastructure error, malformed artifact, missing artifact, or transport failure count as evidence that the model misunderstood the data-engineering contract. It may still be an operational weakness, but report it separately.
 
+Record the outcome through the control plane with its raw evidence. A non-semantic
+outcome blocks approval. Re-run it once in a clean environment as a new attempt with
+`retry_of` metadata; do not overwrite the first record or convert it into a semantic
+failure. If the retry also fails non-semantically, keep both attempts incomplete and
+carry the operational risk into the comparison.
+
 ## Evaluator sanity
 
 When the task supplies suitable paths:
@@ -51,3 +57,8 @@ Use realistic semantic mutants to test evaluator strength: wrong deduplication k
 ## Approval boundary
 
 Immediately before approval, repeat the feedback and artifact snapshot. Record any new comments, checks, artifact IDs, sizes, and digests. If anything changed after the review began, reconcile the delta and rerun the affected gates.
+
+Approval and submission must re-hash every recorded artifact inside their locked state
+transitions. A missing, resized, or digest-mismatched artifact returns the run to a failed
+state. Comparison must also evaluate current receipts rather than trusting an earlier
+`verified` status.

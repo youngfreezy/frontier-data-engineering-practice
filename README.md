@@ -5,7 +5,7 @@ This private repository is the canonical home of two reusable components:
 - the `frontier-data-engineering` skill under `.cursor/skills/`;
 - the dependency-free `frontier_control_plane` Python package under `src/`.
 
-The toolkit records run identity and ownership, executable gate results, artifact receipts, canonical result hashes, verification, approval, submission, and candidate comparisons. It contains no warehouse engine, browser automation, grading policy, or task fixture.
+The toolkit records requirements-pinned run identity and ownership, tri-state executable gate results, typed outcomes, required artifact receipts, measurements, residual risks, canonical result hashes, verification, approval, submission, and identity-safe candidate comparisons. Approval and submission re-hash artifacts inside their locked state transitions. It contains no warehouse engine, browser automation, grading policy, or task fixture.
 
 Read [BOUNDARIES.md](BOUNDARIES.md) for the enforced ownership and dependency rules.
 
@@ -17,6 +17,11 @@ scripts/test_toolkit.sh
 python3 .cursor/skills/frontier-data-engineering/scripts/control_plane.py --help
 python3 scripts/install_skill_links.py
 ```
+
+New runs must register `clean_checkout` and `unit_tests`, the requirements,
+dataset, and environment SHA-256 digests, and every required artifact name.
+Use the CLI `outcome`, `measure`, and `risk` commands to keep non-semantic
+failures, resource evidence, and residual risks out of prose-only summaries.
 
 ## Practice task
 

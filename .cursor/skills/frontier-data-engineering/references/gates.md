@@ -1,6 +1,9 @@
 # Data-engineering gates
 
 Choose only the gates exercised by the live task, plus `clean_checkout` and `unit_tests`.
+Record every selected gate as `pass`, `fail`, `not_run`, or `not_applicable`, with
+evidence. `not_applicable` must quote the task sentence that excludes the behavior.
+`not_run` must name the residual risk and blocks approval when the gate is required.
 
 Streaming, table-format, and orchestration gates require the real platform runtime. Do not
 simulate them on a local engine and record the result as a pass; if the runtime is not
@@ -12,11 +15,16 @@ available, record the gate as not run and treat it as a residual risk in the com
 - `unit_tests`: supplied tests and evaluator-added tests pass.
 - `contract_traceability`: each stated requirement has a test or inspection, and each evaluator assertion traces to a stated requirement.
 - `schema_contract`: output columns, types, nullability, keys, and grain match the contract.
+- `value_invariants`: uniqueness, allowed ranges, cross-field rules, and impossible states are asserted at the output grain.
+- `join_cardinality`: expected 1:1, 1:N, and N:1 relationships preserve the stated output grain; unmatched and null keys have explicit counts and behavior.
+- `aggregate_grain`: each metric is computed at its declared business grain before rollup, without summing pre-aggregated values at an incompatible grain.
+- `key_stability`: natural-key normalization cannot create silent collisions, and surrogate keys remain stable across replay and full refresh.
 - `duplicates`: replayed input cannot create duplicate business facts.
 - `late_data`: a later arrival with an earlier processing time lands according to event-time rules.
 - `backfill`: historical input updates the intended partitions without regressing newer state.
 - `idempotency`: a second run over the same input produces the same canonical output hash.
 - `recovery`: an injected interruption rolls back or resumes from the documented safe point.
+- `atomic_commit`: readers cannot observe partial output, and a failed multi-table or multi-partition write leaves either the prior complete version or a recoverable staged version.
 
 ## Add when the task needs them
 
@@ -31,6 +39,11 @@ available, record the gate as not run and treat it as a residual risk in the com
 - `timezone`: UTC conversion, daylight-saving transitions, and date boundaries are tested.
 - `precision`: decimal scale, overflow, and comparison tolerances are explicit.
 - `schema_drift`: additive, missing, and incompatible fields have a defined result.
+- `type_coercion`: numeric-looking strings, timestamps represented as strings, and incompatible casts preserve identity or fail according to the contract.
+- `null_semantics`: null, empty, missing, and defaulted values remain distinct where the contract distinguishes them.
+- `category_drift`: new, renamed, and retired enum values have an explicit quarantine, mapping, or failure path.
+- `event_time_contract`: event, ingest, and processing timestamps are identified; clock skew and early arrivals follow a stated rule.
+- `sessionization`: session gaps, boundary events, merges caused by late data, and deterministic session identifiers match the contract.
 - `query_plan`: plans show the intended scan, join, pruning, and partition behavior.
 - `scale`: runtime, memory, shuffle, state, or file-count measurements meet the task target.
 - `observability`: a controlled failure produces a run ID, failed stage, metric, and actionable log.
@@ -38,8 +51,20 @@ available, record the gate as not run and treat it as a residual risk in the com
 - `concurrent_runs`: two overlapping runs of the same pipeline over the same target cannot corrupt state; the second run blocks, fails cleanly, or serializes, and a reader during a write sees either the prior complete state or the new complete state, never a mixture.
 - `referential_integrity`: keys between output tables resolve; orphaned facts, dangling dimension references, and lookups that miss have a defined and tested result.
 - `volume_anomaly`: output row counts and partition sizes match the baseline within a stated tolerance; empty input, a partition with zero rows, and unexpectedly large input each have a defined result rather than a silent pass.
+- `distribution_shift`: null rate, cardinality, quantiles, and tail behavior stay within stated bands; a stable mean cannot hide a broken distribution.
+- `freshness`: source and output timestamps meet the stated freshness SLA, with a defined result for stale or missing partitions.
 - `cdc_ordering`: out-of-order change events resolve by the stated version or timestamp rule; same-key ties at the same version have an explicit tie-break; delete-then-reinsert and a tombstone arriving before its insert produce the documented final state.
 - `scd_history`: dimension history is correct after an update, a late correction, and a full reprocess; effective-date ranges do not overlap or gap, and exactly one row per key is current.
+- `privacy`: sensitive fields are classified, minimized, masked or encrypted as required, and excluded from unauthorized logs and artifacts.
+- `retention_deletion`: retention expiry and subject deletion remove every governed copy, derivative, index, and cache while preserving required audit evidence.
+- `access_boundary`: service identities and users can read and write only the declared datasets, partitions, and operations.
+- `lineage`: the output records the exact input versions, code version, and transformation needed to explain which inputs produced its digest.
+- `poison_records`: malformed and all-null key rows follow the declared fail, quarantine, or dead-letter path without silently disappearing.
+- `data_layout`: skew, small-file growth, partition count, and partition pruning stay within stated limits at representative scale.
+- `cost`: measured compute, storage, scan, and external-service cost meet the task budget and remain separate from semantic correctness.
+- `catalog_drift`: table metadata, locations, partition registrations, permissions, and runtime catalogs agree with the pinned environment.
+- `determinism`: wall-clock time, random identifiers, unstable iteration, floating-point order, and unspecified tie-breaks cannot change canonical output across equivalent runs.
+- `semantic_equality`: primary-key sets, typed invariants, aggregate checksums, and canonicalized values agree before a whole-output hash is used as the final replay check.
 
 ## Streaming (only with the real streaming runtime)
 

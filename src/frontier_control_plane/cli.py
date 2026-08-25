@@ -7,7 +7,7 @@ import json
 from pathlib import Path
 
 from .control_plane import ControlPlane
-from .models import RunIdentity
+from .models import GateStatus, OutcomeClass, RunIdentity
 
 
 def emit(value) -> None:
@@ -29,7 +29,10 @@ def build_parser() -> argparse.ArgumentParser:
     register.add_argument("--commit", required=True)
     register.add_argument("--dataset-hash", required=True)
     register.add_argument("--environment-hash", required=True)
+    register.add_argument("--requirements-hash", required=True)
     register.add_argument("--gate", action="append", required=True)
+    register.add_argument("--artifact-name", action="append", default=[])
+    register.add_argument("--retry-of")
 
     claim = sub.add_parser("claim")
     claim.add_argument("run_id")
@@ -38,9 +41,12 @@ def build_parser() -> argparse.ArgumentParser:
     gate = sub.add_parser("gate")
     gate.add_argument("run_id")
     gate.add_argument("name")
-    gate.add_argument("--passed", action=argparse.BooleanOptionalAction, required=True)
+    gate.add_argument("--passed", action=argparse.BooleanOptionalAction)
+    gate.add_argument("--status", choices=[item.value for item in GateStatus])
     gate.add_argument("--detail", required=True)
-    gate.add_argument("--evidence", action="append", default=[])
+    gate.add_argument("--evidence", action="append", required=True)
+    gate.add_argument("--applicability-basis")
+    gate.add_argument("--residual-risk")
 
     artifact = sub.add_parser("artifact")
     artifact.add_argument("run_id")
@@ -50,6 +56,27 @@ def build_parser() -> argparse.ArgumentParser:
     result = sub.add_parser("result")
     result.add_argument("run_id")
     result.add_argument("sha256")
+
+    outcome = sub.add_parser("outcome")
+    outcome.add_argument("run_id")
+    outcome.add_argument(
+        "outcome_class", choices=[item.value for item in OutcomeClass]
+    )
+    outcome.add_argument("--detail", required=True)
+    outcome.add_argument("--evidence", action="append", required=True)
+
+    measure = sub.add_parser("measure")
+    measure.add_argument("run_id")
+    measure.add_argument("name")
+    measure.add_argument("value", type=float)
+    measure.add_argument("--unit", required=True)
+    measure.add_argument("--evidence", action="append", required=True)
+
+    risk = sub.add_parser("risk")
+    risk.add_argument("run_id")
+    risk.add_argument("name")
+    risk.add_argument("--detail", required=True)
+    risk.add_argument("--evidence", action="append", required=True)
 
     verify = sub.add_parser("verify")
     verify.add_argument("run_id")
@@ -83,18 +110,52 @@ def main() -> int:
                     starting_commit=args.commit,
                     dataset_hash=args.dataset_hash,
                     environment_hash=args.environment_hash,
+                    requirements_hash=args.requirements_hash,
                 ),
                 args.gate,
+                {"retry_of": args.retry_of} if args.retry_of else None,
+                args.artifact_name or ("result",),
             )
         )
     elif args.command == "claim":
         emit(plane.claim(args.run_id, args.owner))
     elif args.command == "gate":
-        emit(plane.record_gate(args.run_id, args.name, args.passed, args.detail, args.evidence))
+        if args.passed is None and args.status is None:
+            raise SystemExit("gate requires --status or --passed/--no-passed")
+        emit(
+            plane.record_gate(
+                args.run_id,
+                args.name,
+                args.passed,
+                args.detail,
+                args.evidence,
+                status=args.status,
+                applicability_basis=args.applicability_basis,
+                residual_risk=args.residual_risk,
+            )
+        )
     elif args.command == "artifact":
         emit(plane.record_artifact(args.run_id, args.name, args.path))
     elif args.command == "result":
         emit(plane.set_result_hash(args.run_id, args.sha256))
+    elif args.command == "outcome":
+        emit(
+            plane.record_outcome(
+                args.run_id, args.outcome_class, args.detail, args.evidence
+            )
+        )
+    elif args.command == "measure":
+        emit(
+            plane.record_measurement(
+                args.run_id, args.name, args.value, args.unit, args.evidence
+            )
+        )
+    elif args.command == "risk":
+        emit(
+            plane.record_residual_risk(
+                args.run_id, args.name, args.detail, args.evidence
+            )
+        )
     elif args.command == "verify":
         result = plane.verify(args.run_id)
         emit(result)
@@ -108,7 +169,7 @@ def main() -> int:
     elif args.command == "compare":
         result = plane.compare(args.run_ids)
         emit(result)
-        return 0 if result["matching_result_hashes"] and result["all_verified"] else 1
+        return 0 if result["passed"] else 1
     return 0
 
 

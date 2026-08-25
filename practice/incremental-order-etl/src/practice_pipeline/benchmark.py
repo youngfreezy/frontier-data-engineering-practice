@@ -73,12 +73,14 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
                 "control_plane_source": control_source_hash,
             }
         ),
+        requirements_hash=files_hash([root / "README.md"]),
     )
     control = ControlPlane(args.state)
     control.register(
         identity,
         REQUIRED_GATES,
         {"worktree": str(root), "control_plane_source": control_source_hash},
+        ("result", "pytest", "skill_cli"),
     )
     control.claim(args.run_id, args.owner)
     control.record_gate(
@@ -86,6 +88,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         "clean_checkout",
         not dirty,
         "Git worktree is clean" if not dirty else f"dirty paths: {dirty}",
+        ["git status --porcelain"],
     )
 
     test_log = artifact_dir / "pytest.txt"
@@ -163,6 +166,10 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         "duplicates",
         duplicate_pass,
         "duplicate event ids do not change raw counts or materialized output",
+        [
+            f"counts_before={before_duplicate_counts}",
+            f"result_hash_before={before_duplicate_hash}",
+        ],
     )
 
     pipeline.process(late, "late")
@@ -179,6 +186,10 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         "late_data",
         late_pass,
         "late completion replaces current order state and repairs the affected daily aggregate",
+        [
+            f"order_o3={current['o3']}",
+            f"daily_2026-01-02={revenue['2026-01-02']}",
+        ],
     )
 
     before_backfill = pipeline.snapshot().result_hash
@@ -196,6 +207,10 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         "backfill",
         backfill_pass,
         "older backfill is retained in raw history without overwriting current state",
+        [
+            f"order_o2={backfill_current['o2']}",
+            f"raw_rows={pipeline.counts()['raw_order_events']}",
+        ],
     )
 
     before_replay = pipeline.snapshot().result_hash
@@ -210,6 +225,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         "idempotency",
         idempotency_pass,
         "replaying the entire input leaves row counts and result hash unchanged",
+        [f"counts={counts_before_replay}", f"result_hash={before_replay}"],
     )
 
     before_failure = pipeline.snapshot().result_hash
@@ -234,6 +250,10 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         "recovery",
         recovery_pass,
         "injected failure rolls back business state; retry completes the same run id",
+        [
+            f"rollback_hash={before_failure}",
+            f"recovery_status={pipeline.run_status('recovery-attempt')}",
+        ],
     )
 
     result_path = artifact_dir / "result.json"
@@ -242,6 +262,19 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     control.record_artifact(args.run_id, "pytest", test_log)
     control.record_artifact(args.run_id, "skill_cli", skill_log)
     control.set_result_hash(args.run_id, final_snapshot.result_hash)
+    control.record_measurement(
+        args.run_id,
+        "orders_current_rows",
+        pipeline.counts()["orders_current"],
+        "rows",
+        [str(result_path)],
+    )
+    control.record_outcome(
+        args.run_id,
+        "solved",
+        "the benchmark completed normally and produced all required artifacts",
+        [str(result_path), str(test_log), str(skill_log)],
+    )
     verification = control.verify(args.run_id)
     if not verification.passed:
         raise RuntimeError(f"benchmark verification failed: {verification.to_dict()}")
