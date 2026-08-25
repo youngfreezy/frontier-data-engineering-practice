@@ -23,6 +23,7 @@ from .pipeline import InjectedFailure, Pipeline, load_jsonl
 REQUIRED_GATES = (
     "clean_checkout",
     "unit_tests",
+    "skill_cli",
     "late_data",
     "duplicates",
     "backfill",
@@ -101,6 +102,31 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         tests.returncode == 0,
         tests.stdout.strip().splitlines()[-1] if tests.stdout.strip() else "pytest produced no output",
         [str(test_log)],
+    )
+
+    skill_log = artifact_dir / "skill-cli.txt"
+    skill_test = subprocess.run(
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "-q",
+            str(root / "tests" / "test_skill_cli.py"),
+        ],
+        cwd=root,
+        text=True,
+        capture_output=True,
+        env={**__import__("os").environ, "PYTHONPATH": str(root / "src")},
+    )
+    skill_log.write_text(skill_test.stdout + skill_test.stderr, encoding="utf-8")
+    control.record_gate(
+        args.run_id,
+        "skill_cli",
+        skill_test.returncode == 0,
+        "the skill wrapper completed register-through-submit for two runs and compared them"
+        if skill_test.returncode == 0
+        else "the skill CLI lifecycle test failed",
+        [str(skill_log)],
     )
 
     pipeline = Pipeline(database)
@@ -200,6 +226,7 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     write_json(result_path, final_snapshot.to_dict())
     control.record_artifact(args.run_id, "result", result_path)
     control.record_artifact(args.run_id, "pytest", test_log)
+    control.record_artifact(args.run_id, "skill_cli", skill_log)
     control.set_result_hash(args.run_id, final_snapshot.result_hash)
     verification = control.verify(args.run_id)
     if not verification.passed:

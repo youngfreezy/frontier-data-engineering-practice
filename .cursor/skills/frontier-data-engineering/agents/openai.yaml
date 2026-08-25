@@ -1,0 +1,6 @@
+interface:
+  display_name: "Frontier Data Engineering"
+  short_description: "Run gated, reproducible data-agent evaluations"
+  default_prompt: "Use $frontier-data-engineering to run and evaluate this data-engineering task with reproducible evidence."
+policy:
+  allow_implicit_invocation: true

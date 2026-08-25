@@ -1,0 +1,83 @@
+<mxfile host="app.diagrams.net" modified="2026-08-25T20:00:00.000Z" agent="Codex" version="26.0.9" type="device">
+  <diagram id="frontier-data-engineering" name="Workflow">
+    <mxGraphModel dx="1600" dy="900" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1600" pageHeight="900" math="0" shadow="0">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="title" value="Frontier Data Engineering: fail-closed agent evaluation" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=28;fontStyle=1;fontColor=#172B4D;" vertex="1" parent="1">
+          <mxGeometry x="40" y="25" width="1050" height="45" as="geometry"/>
+        </mxCell>
+        <mxCell id="subtitle" value="Canonical skill + control plane live in the private practice repository. Feather consumes the same version through its adapter." style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=15;fontColor=#5E6C84;" vertex="1" parent="1">
+          <mxGeometry x="40" y="70" width="1250" height="35" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="task" value="&lt;b&gt;1. Task contract&lt;/b&gt;&lt;br&gt;Schemas, grain, keys, time rules, scale target" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9F2FF;strokeColor=#0C66E4;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="40" y="150" width="180" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="candidate" value="&lt;b&gt;2. Isolate candidate&lt;/b&gt;&lt;br&gt;Clean worktree or container at one starting commit" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9F2FF;strokeColor=#0C66E4;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="260" y="150" width="190" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="register" value="&lt;b&gt;3. Register + claim&lt;/b&gt;&lt;br&gt;Task, candidate, attempt, commit, data hash, environment hash" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAE6FF;strokeColor=#6E5DC6;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="490" y="150" width="205" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="implement" value="&lt;b&gt;4. Agent implementation&lt;/b&gt;&lt;br&gt;Run supplied tests, inspect code and transformations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7D6;strokeColor=#E2B203;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="735" y="150" width="190" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="gates" value="&lt;b&gt;5. Executable gates&lt;/b&gt;&lt;br&gt;Correctness, duplicates, late data, backfill, idempotency, recovery, scale" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFF7D6;strokeColor=#E2B203;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="965" y="150" width="210" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="hash" value="&lt;b&gt;6. Hash evidence&lt;/b&gt;&lt;br&gt;Canonical output hash + SHA-256 artifact receipts" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DCFFF1;strokeColor=#22A06B;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1215" y="150" width="185" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="verify" value="All gates pass?&lt;br&gt;Owner + result hash present?" style="rhombus;whiteSpace=wrap;html=1;fillColor=#DCFFF1;strokeColor=#22A06B;fontSize=14;fontStyle=1;" vertex="1" parent="1">
+          <mxGeometry x="1430" y="140" width="135" height="125" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="review" value="&lt;b&gt;7. Independent review&lt;/b&gt;&lt;br&gt;Contract, diff, logs, output diff, plans, limitations" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9F2FF;strokeColor=#0C66E4;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1195" y="350" width="215" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="approve" value="&lt;b&gt;8. Approve&lt;/b&gt;&lt;br&gt;Fail closed if any required evidence is absent" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DCFFF1;strokeColor=#22A06B;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="940" y="350" width="210" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="submit" value="&lt;b&gt;9. Submit&lt;/b&gt;&lt;br&gt;Preserve ledger and evidence bundle" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#DCFFF1;strokeColor=#22A06B;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="705" y="350" width="190" height="105" as="geometry"/>
+        </mxCell>
+        <mxCell id="compare" value="&lt;b&gt;10. Compare candidates&lt;/b&gt;&lt;br&gt;Hard-gate failures, result hashes, runtime, resources, untested inputs" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAE6FF;strokeColor=#6E5DC6;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="455" y="350" width="210" height="105" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="repair" value="&lt;b&gt;Repair or reject&lt;/b&gt;&lt;br&gt;Add the smallest reproducer and regression test, then rerun affected gates" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFECEB;strokeColor=#C9372C;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="520" width="260" height="100" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="ledger" value="&lt;b&gt;Atomic control-plane ledger&lt;/b&gt;&lt;br&gt;registered → claimed → running → verified → approved → submitted&lt;br&gt;&lt;font color=&quot;#5E6C84&quot;&gt;Stores identity, ownership, gates, evidence paths, artifact receipts, result hash, approval and submission events&lt;/font&gt;" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#F7F8F9;strokeColor=#44546F;fontSize=15;spacing=14;" vertex="1" parent="1">
+          <mxGeometry x="390" y="660" width="780" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="feather" value="&lt;b&gt;Feather adapter&lt;/b&gt;&lt;br&gt;Registers task ownership and blocks exact Submit/Confirm until its writing gates, fields and bundle hash verify" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFE2BD;strokeColor=#B65C02;fontSize=14;spacing=10;dashed=1;" vertex="1" parent="1">
+          <mxGeometry x="40" y="660" width="295" height="125" as="geometry"/>
+        </mxCell>
+        <mxCell id="benchmark" value="&lt;b&gt;End-to-end benchmark&lt;/b&gt;&lt;br&gt;Two detached clean worktrees run the same fixture. Approval requires every gate and matching canonical result hashes." style="rounded=1;whiteSpace=wrap;html=1;fillColor=#EAE6FF;strokeColor=#6E5DC6;fontSize=14;spacing=10;" vertex="1" parent="1">
+          <mxGeometry x="1225" y="660" width="330" height="125" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#0C66E4;strokeWidth=2;" edge="1" parent="1" source="task" target="candidate"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#0C66E4;strokeWidth=2;" edge="1" parent="1" source="candidate" target="register"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#6E5DC6;strokeWidth=2;" edge="1" parent="1" source="register" target="implement"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#E2B203;strokeWidth=2;" edge="1" parent="1" source="implement" target="gates"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#E2B203;strokeWidth=2;" edge="1" parent="1" source="gates" target="hash"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#22A06B;strokeWidth=2;" edge="1" parent="1" source="hash" target="verify"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="pass" value="PASS" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#22A06B;strokeWidth=2;fontColor=#216E4E;fontStyle=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="verify" target="review"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1498" y="315"/><mxPoint x="1450" y="402"/></Array></mxGeometry></mxCell>
+        <mxCell id="e8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#0C66E4;strokeWidth=2;" edge="1" parent="1" source="review" target="approve"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e9" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#22A06B;strokeWidth=2;" edge="1" parent="1" source="approve" target="submit"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#6E5DC6;strokeWidth=2;" edge="1" parent="1" source="submit" target="compare"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="fail" value="FAIL" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#C9372C;strokeWidth=2;fontColor=#AE2A19;fontStyle=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="verify" target="repair"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1580" y="203"/><mxPoint x="1580" y="570"/></Array></mxGeometry></mxCell>
+        <mxCell id="retry" value="rerun" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;endArrow=block;endFill=1;strokeColor=#C9372C;strokeWidth=2;dashed=1;" edge="1" parent="1" source="repair" target="gates"><mxGeometry relative="1" as="geometry"><Array as="points"><mxPoint x="1070" y="570"/></Array></mxGeometry></mxCell>
+        <mxCell id="ledgerRegister" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#44546F;dashed=1;" edge="1" parent="1" source="register" target="ledger"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ledgerGates" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#44546F;dashed=1;" edge="1" parent="1" source="gates" target="ledger"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="ledgerSubmit" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#44546F;dashed=1;" edge="1" parent="1" source="submit" target="ledger"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="featherLedger" value="same API" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#B65C02;strokeWidth=2;dashed=1;fontColor=#974F0C;" edge="1" parent="1" source="feather" target="ledger"><mxGeometry relative="1" as="geometry"/></mxCell>
+        <mxCell id="benchmarkLedger" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=block;endFill=1;strokeColor=#6E5DC6;strokeWidth=2;dashed=1;" edge="1" parent="1" source="benchmark" target="ledger"><mxGeometry relative="1" as="geometry"/></mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

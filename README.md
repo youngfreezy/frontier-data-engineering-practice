@@ -2,6 +2,8 @@
 
 This is a small production-style incremental ETL benchmark. It ingests order events into DuckDB, keeps one current row per order, and rebuilds daily revenue only for dates affected by a batch.
 
+This repository is also the canonical home of the `frontier-data-engineering` skill and its dependency-free `frontier_control_plane` package. Feather consumes this repository as an integration; it does not own the canonical skill source.
+
 The benchmark is deliberately narrow. Its purpose is to exercise the failure modes that matter when evaluating coding agents:
 
 - duplicate delivery and replay safety;
@@ -16,10 +18,12 @@ The benchmark is deliberately narrow. Its purpose is to exercise the failure mod
 ```sh
 uv sync
 ./scripts/test.sh
+python3 .cursor/skills/frontier-data-engineering/scripts/control_plane.py --help
 PYTHONPATH=src uv run python -m practice_pipeline.benchmark --help
+python3 scripts/install_skill_links.py
 ```
 
-The repository also includes `scripts/run_clean_benchmark.sh`. It creates two detached Git worktrees at the same commit, runs the full benchmark in each, and fails unless both result hashes match and every required gate passes.
+The repository also includes `scripts/run_clean_benchmark.sh`. It creates two detached Git worktrees at the same commit, runs the full benchmark and the skill CLI lifecycle in each, and fails unless both result hashes match and every required gate passes.
 
 The explicit `PYTHONPATH` keeps the commands reliable on Python builds that skip hidden editable-install `.pth` files.
 
