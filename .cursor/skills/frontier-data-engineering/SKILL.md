@@ -39,4 +39,4 @@ python3 .cursor/skills/frontier-data-engineering/scripts/control_plane.py \
 
 Use `--help` for register, claim, gate, artifact, result, verify, approve, submit, and compare.
 
-Feather uses the same package through `feather-desk/scripts/frontier_control_plane_adapter.py`. Keep browser and mail actions in their existing adapters.
+Consumer-specific adapters belong in their consumer repositories. They may call the control-plane API, but this reusable skill must not import or name those consumers.

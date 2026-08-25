@@ -1,37 +1,37 @@
-# Frontier data-engineering practice
+# Frontier data-engineering toolkit
 
-This is a small production-style incremental ETL benchmark. It ingests order events into DuckDB, keeps one current row per order, and rebuilds daily revenue only for dates affected by a batch.
+This private repository is the canonical home of two reusable components:
 
-This repository is also the canonical home of the `frontier-data-engineering` skill and its dependency-free `frontier_control_plane` package. Feather consumes this repository as an integration; it does not own the canonical skill source.
+- the `frontier-data-engineering` skill under `.cursor/skills/`;
+- the dependency-free `frontier_control_plane` Python package under `src/`.
 
-The benchmark is deliberately narrow. Its purpose is to exercise the failure modes that matter when evaluating coding agents:
+The toolkit records run identity and ownership, executable gate results, artifact receipts, canonical result hashes, verification, approval, submission, and candidate comparisons. It contains no warehouse engine, browser automation, grading policy, or task fixture.
 
-- duplicate delivery and replay safety;
-- late-arriving state changes;
-- older backfill events that must not overwrite current state;
-- idempotent reruns;
-- transaction rollback and recovery;
-- deterministic output from independent clean checkouts.
+Read [BOUNDARIES.md](BOUNDARIES.md) for the enforced ownership and dependency rules.
 
-## Run it
+## Reusable toolkit commands
 
 ```sh
 uv sync
-./scripts/test.sh
+scripts/test_toolkit.sh
 python3 .cursor/skills/frontier-data-engineering/scripts/control_plane.py --help
-PYTHONPATH=src uv run python -m practice_pipeline.benchmark --help
 python3 scripts/install_skill_links.py
 ```
 
-The repository also includes `scripts/run_clean_benchmark.sh`. It creates two detached Git worktrees at the same commit, runs the full benchmark and the skill CLI lifecycle in each, and fails unless both result hashes match and every required gate passes.
+## Practice task
 
-The explicit `PYTHONPATH` keeps the commands reliable on Python builds that skip hidden editable-install `.pth` files.
+The incremental order-event exercise is isolated under `practice/incremental-order-etl`. That project owns DuckDB, its schemas, fixtures, expected totals, pipeline code, and clean-worktree benchmark.
 
-## Tables
+```sh
+uv sync --project practice/incremental-order-etl
+practice/incremental-order-etl/scripts/test.sh
+practice/incremental-order-etl/scripts/run_clean_benchmark.sh
+```
 
-- `raw_order_events`: immutable, deduplicated source events.
-- `orders_current`: the latest event for each order, ordered by event time, ingestion time, and event id.
-- `daily_revenue`: completed-order revenue grouped by the UTC date of the current event.
-- `pipeline_runs`: a lightweight operational log for completed and failed attempts.
+The practice project depends on the root toolkit through a relative local package reference. The reusable toolkit does not import the practice project.
 
-All amounts use integer cents. The pipeline uses explicit transactions. An injected failure after raw staging must leave every business table unchanged.
+## Consumer integrations
+
+Consumer-specific adapters remain in their consumer repositories. Feather pins this repository as a private Git submodule and imports only the control-plane package through its Feather adapter.
+
+The draw.io source and rendered architecture diagram are under `docs/`.

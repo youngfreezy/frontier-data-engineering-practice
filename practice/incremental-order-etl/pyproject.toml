@@ -1,0 +1,29 @@
+[project]
+name = "frontier-data-engineering-practice"
+version = "0.1.0"
+description = "A deterministic incremental order-event ETL benchmark."
+requires-python = ">=3.12"
+dependencies = [
+  "duckdb>=1.2",
+  "frontier-data-engineering-toolkit",
+]
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+]
+
+[tool.uv.sources]
+frontier-data-engineering-toolkit = { path = "../..", editable = false }
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["practice_pipeline*"]

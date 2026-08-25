@@ -1,12 +1,10 @@
 [project]
-name = "frontier-data-engineering-practice"
+name = "frontier-data-engineering-toolkit"
 version = "0.1.0"
-description = "A deterministic incremental ETL benchmark for frontier coding-agent evaluation."
+description = "A dependency-free control plane and skill for frontier data-engineering evaluations."
 readme = "README.md"
-requires-python = ">=3.12"
-dependencies = [
-  "duckdb>=1.2",
-]
+requires-python = ">=3.11"
+dependencies = []
 
 [project.scripts]
 frontier-control-plane = "frontier_control_plane.cli:main"
@@ -26,3 +24,4 @@ build-backend = "setuptools.build_meta"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+include = ["frontier_control_plane*"]

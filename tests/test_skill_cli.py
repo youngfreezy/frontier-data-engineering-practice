@@ -27,7 +27,7 @@ def test_skill_wrapper_runs_two_full_lifecycles_and_compares_results() -> None:
         root = Path(directory)
         state = root / "control-plane.json"
         artifact = root / "result.json"
-        artifact.write_text('{"rows":4,"revenue_cents":4750}\n', encoding="utf-8")
+        artifact.write_text('{"ok":true}\n', encoding="utf-8")
 
         for attempt in (1, 2):
             run_id = f"skill-e2e-{attempt}"
@@ -36,9 +36,9 @@ def test_skill_wrapper_runs_two_full_lifecycles_and_compares_results() -> None:
                 "register",
                 run_id,
                 "--task",
-                "skill-smoke",
+                "control-plane-smoke",
                 "--candidate",
-                "practice-pipeline",
+                "candidate-a",
                 "--attempt",
                 str(attempt),
                 "--commit",

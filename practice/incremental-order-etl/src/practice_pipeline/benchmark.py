@@ -46,6 +46,7 @@ def write_json(path: Path, value: Any) -> None:
 
 def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
     root = Path(args.worktree).resolve()
+    repo_root = root.parents[1]
     fixtures = root / "fixtures"
     artifact_dir = Path(args.artifacts).resolve()
     artifact_dir.mkdir(parents=True, exist_ok=True)
@@ -89,11 +90,21 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
 
     test_log = artifact_dir / "pytest.txt"
     tests = subprocess.run(
-        [sys.executable, "-m", "pytest", "-q", str(root / "tests")],
+        [
+            sys.executable,
+            "-m",
+            "pytest",
+            "-q",
+            str(root / "tests"),
+            str(repo_root / "tests"),
+        ],
         cwd=root,
         text=True,
         capture_output=True,
-        env={**__import__("os").environ, "PYTHONPATH": str(root / "src")},
+        env={
+            **__import__("os").environ,
+            "PYTHONPATH": f"{root / 'src'}:{repo_root / 'src'}",
+        },
     )
     test_log.write_text(tests.stdout + tests.stderr, encoding="utf-8")
     control.record_gate(
@@ -111,12 +122,15 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
             "-m",
             "pytest",
             "-q",
-            str(root / "tests" / "test_skill_cli.py"),
+            str(repo_root / "tests" / "test_skill_cli.py"),
         ],
         cwd=root,
         text=True,
         capture_output=True,
-        env={**__import__("os").environ, "PYTHONPATH": str(root / "src")},
+        env={
+            **__import__("os").environ,
+            "PYTHONPATH": f"{root / 'src'}:{repo_root / 'src'}",
+        },
     )
     skill_log.write_text(skill_test.stdout + skill_test.stderr, encoding="utf-8")
     control.record_gate(
