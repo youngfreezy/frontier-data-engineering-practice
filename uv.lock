@@ -57,7 +57,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "duckdb", specifier = ">=1.2" },
-    { name = "frontier-eval-control-plane", editable = "../../../../../../Projects/feather-desk" },
+    { name = "frontier-eval-control-plane", directory = "../../../../../../Projects/feather-desk" },
 ]
 
 [package.metadata.requires-dev]
@@ -66,7 +66,7 @@ dev = [{ name = "pytest", specifier = ">=8.3" }]
 [[package]]
 name = "frontier-eval-control-plane"
 version = "0.1.0"
-source = { editable = "../../../../../../Projects/feather-desk" }
+source = { directory = "../../../../../../Projects/feather-desk" }
 
 [[package]]
 name = "iniconfig"

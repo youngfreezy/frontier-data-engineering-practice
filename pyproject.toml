@@ -18,7 +18,7 @@ dev = [
 ]
 
 [tool.uv.sources]
-frontier-eval-control-plane = { path = "/Users/fareezahmed/Projects/feather-desk", editable = true }
+frontier-eval-control-plane = { path = "/Users/fareezahmed/Projects/feather-desk", editable = false }
 
 [tool.pytest.ini_options]
 addopts = "-q"
