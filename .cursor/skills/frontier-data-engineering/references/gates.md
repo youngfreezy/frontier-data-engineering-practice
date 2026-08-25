@@ -2,6 +2,10 @@
 
 Choose only the gates exercised by the live task, plus `clean_checkout` and `unit_tests`.
 
+Streaming, table-format, and orchestration gates require the real platform runtime. Do not
+simulate them on a local engine and record the result as a pass; if the runtime is not
+available, record the gate as not run and treat it as a residual risk in the comparison.
+
 ## Required on most batch pipelines
 
 - `clean_checkout`: the run starts at the recorded commit with no untracked or modified files.
@@ -31,6 +35,30 @@ Choose only the gates exercised by the live task, plus `clean_checkout` and `uni
 - `scale`: runtime, memory, shuffle, state, or file-count measurements meet the task target.
 - `observability`: a controlled failure produces a run ID, failed stage, metric, and actionable log.
 - `secrets`: credentials are absent from diffs, outputs, logs, and saved artifacts.
+- `concurrent_runs`: two overlapping runs of the same pipeline over the same target cannot corrupt state; the second run blocks, fails cleanly, or serializes, and a reader during a write sees either the prior complete state or the new complete state, never a mixture.
+- `referential_integrity`: keys between output tables resolve; orphaned facts, dangling dimension references, and lookups that miss have a defined and tested result.
+- `volume_anomaly`: output row counts and partition sizes match the baseline within a stated tolerance; empty input, a partition with zero rows, and unexpectedly large input each have a defined result rather than a silent pass.
+- `cdc_ordering`: out-of-order change events resolve by the stated version or timestamp rule; same-key ties at the same version have an explicit tie-break; delete-then-reinsert and a tombstone arriving before its insert produce the documented final state.
+- `scd_history`: dimension history is correct after an update, a late correction, and a full reprocess; effective-date ranges do not overlap or gap, and exactly one row per key is current.
+
+## Streaming (only with the real streaming runtime)
+
+- `delivery_semantics`: the stated guarantee (at-least-once or exactly-once) holds under broker redelivery and consumer restart; duplicates permitted by the guarantee are deduplicated or tolerated downstream, with evidence from an injected redelivery.
+- `watermark_windowing`: window assignment, allowed lateness, and the split between on-time and late output match the contract, including an event exactly on a window boundary and a late event past the watermark.
+- `checkpoint_recovery`: killing the job mid-stream and restarting from the last checkpoint resumes without loss, and without duplication beyond the stated guarantee; operator state survives the restart.
+- `partition_rebalance`: a consumer joining or leaving mid-run reassigns partitions without losing or double-processing records beyond the stated guarantee.
+
+## Table formats and lakehouse (only with the real table format)
+
+- `snapshot_isolation`: a reader concurrent with a commit sees one complete snapshot; reading a prior snapshot or time-travel query returns the recorded state.
+- `write_conflict`: two writers committing to overlapping partitions follow the format's conflict rule; one retries or fails cleanly and no committed update is lost.
+- `maintenance_safety`: compaction and snapshot expiry or vacuum do not break a concurrent reader and do not delete data inside the stated retention window.
+- `format_evolution`: added, renamed, and type-widened columns read correctly across old and new files; an incompatible change fails loudly instead of returning nulls.
+
+## Orchestration (only with the real scheduler)
+
+- `scheduling_semantics`: the run uses the data interval rather than the wall-clock trigger time; scheduler-driven catchup or backfill produces each intended partition exactly once.
+- `retry_side_effects`: a task retry after a partial success does not duplicate external side effects such as writes, publishes, or notifications; a sensor or upstream dependency that never arrives fails at its deadline instead of hanging.
 
 ## Failure record
 
