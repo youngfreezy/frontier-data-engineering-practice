@@ -1,0 +1,5 @@
+{"event_id":"e1","order_id":"o1","event_time":"2026-01-01T10:00:00Z","ingest_time":"2026-01-01T10:00:03Z","status":"created","amount_cents":1000}
+{"event_id":"e2","order_id":"o1","event_time":"2026-01-01T11:00:00Z","ingest_time":"2026-01-01T11:00:03Z","status":"completed","amount_cents":1000}
+{"event_id":"e3","order_id":"o2","event_time":"2026-01-02T09:00:00Z","ingest_time":"2026-01-02T09:00:03Z","status":"completed","amount_cents":2500}
+{"event_id":"e4","order_id":"o3","event_time":"2026-01-02T10:00:00Z","ingest_time":"2026-01-02T10:00:03Z","status":"created","amount_cents":500}
+

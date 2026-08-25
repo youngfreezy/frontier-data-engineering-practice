@@ -1,0 +1,32 @@
+[project]
+name = "frontier-data-engineering-practice"
+version = "0.1.0"
+description = "A deterministic incremental ETL benchmark for frontier coding-agent evaluation."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "duckdb>=1.2",
+  "frontier-eval-control-plane",
+]
+
+[project.scripts]
+frontier-practice = "practice_pipeline.benchmark:main"
+
+[dependency-groups]
+dev = [
+  "pytest>=8.3",
+]
+
+[tool.uv.sources]
+frontier-eval-control-plane = { path = "/Users/fareezahmed/Projects/feather-desk", editable = true }
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
