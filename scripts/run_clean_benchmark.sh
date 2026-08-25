@@ -8,6 +8,9 @@ python_bin="$project_root/.venv/bin/python"
 
 mkdir -p "$evidence_root" "$scratch_root"
 git -C "$project_root" worktree prune
+# Each invocation is one independent two-checkout experiment. Previous result
+# files remain in the attempt folders, but the run ledger starts empty.
+rm -f "$evidence_root/control-plane.json" "$evidence_root/comparison.json"
 
 for attempt in 1 2; do
   checkout="$scratch_root/attempt-$attempt"
@@ -28,4 +31,3 @@ PYTHONPATH="$project_root/src" "$python_bin" -m practice_pipeline.compare \
   --state "$evidence_root/control-plane.json" \
   --output "$evidence_root/comparison.json" \
   practice-clean-1 practice-clean-2
-
