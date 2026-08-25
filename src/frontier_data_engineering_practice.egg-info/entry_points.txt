@@ -1,2 +1,0 @@
-[console_scripts]
-frontier-practice = practice_pipeline.benchmark:main
