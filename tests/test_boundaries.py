@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import re
 import sys
 import tomllib
 from pathlib import Path
@@ -42,6 +43,14 @@ def test_reusable_skill_does_not_name_consumers_or_practice_fixture() -> None:
     )
     for forbidden in ("feather", "duckdb", "practice_pipeline", "incremental-order"):
         assert forbidden not in text
+
+
+def test_reusable_skill_local_markdown_references_resolve() -> None:
+    skill_text = SKILL.joinpath("SKILL.md").read_text(encoding="utf-8")
+    targets = re.findall(r"\[[^]]+\]\(([^)]+\.md)\)", skill_text)
+    assert targets
+    for target in targets:
+        assert SKILL.joinpath(target).is_file(), target
 
 
 def test_root_package_is_dependency_free_and_practice_owns_duckdb() -> None:
