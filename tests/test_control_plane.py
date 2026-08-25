@@ -13,6 +13,8 @@ from frontier_control_plane import (
     GateStatus,
     OwnershipConflict,
     RunIdentity,
+    semantic_check,
+    semantic_equal,
 )
 
 
@@ -301,6 +303,59 @@ class ControlPlaneTests(unittest.TestCase):
         )
         self.assertEqual(gate.status, GateStatus.passed)
         self.assertTrue(gate.passed)
+
+    def test_changed_requirements_hash_requires_migration_note(self) -> None:
+        self.plane.register(identity("run-1"), BASELINE_GATES)
+        with self.assertRaisesRegex(ControlPlaneError, "migration_note"):
+            self.plane.register(
+                identity("run-2", attempt=2, requirements_hash=SHA_D),
+                BASELINE_GATES,
+            )
+        migrated = self.plane.register(
+            identity("run-2", attempt=2, requirements_hash=SHA_D),
+            BASELINE_GATES,
+            {"migration_note": "task-1 now requires late-data repair"},
+        )
+        self.assertEqual(
+            migrated.metadata["migration_note"],
+            "task-1 now requires late-data repair",
+        )
+
+    def test_semantic_check_uses_keys_and_checksums_before_hash(self) -> None:
+        left = semantic_check(
+            {
+                "orders": [
+                    {"order_id": "o2", "amount_cents": 2},
+                    {"order_id": "o1", "amount_cents": 1},
+                ]
+            },
+            {"orders": ("order_id",)},
+            {"orders": ("amount_cents",)},
+        )
+        right = semantic_check(
+            {
+                "orders": [
+                    {"order_id": "o1", "amount_cents": 1},
+                    {"order_id": "o2", "amount_cents": 2},
+                ]
+            },
+            {"orders": ("order_id",)},
+            {"orders": ("amount_cents",)},
+        )
+        self.assertTrue(semantic_equal(left, right))
+        self.assertEqual(left["key_sets"]["orders"], [["o1"], ["o2"]])
+        self.assertEqual(left["checksums"]["orders.amount_cents"], 3)
+        with self.assertRaisesRegex(ValueError, "duplicate business keys"):
+            semantic_check(
+                {
+                    "orders": [
+                        {"order_id": "o1", "amount_cents": 1},
+                        {"order_id": "o1", "amount_cents": 2},
+                    ]
+                },
+                {"orders": ("order_id",)},
+                {"orders": ("amount_cents",)},
+            )
 
     def test_atomic_store_survives_concurrent_distinct_runs(self) -> None:
         errors: list[BaseException] = []

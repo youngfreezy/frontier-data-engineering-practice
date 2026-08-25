@@ -33,6 +33,7 @@ def build_parser() -> argparse.ArgumentParser:
     register.add_argument("--gate", action="append", required=True)
     register.add_argument("--artifact-name", action="append", default=[])
     register.add_argument("--retry-of")
+    register.add_argument("--migration-note")
 
     claim = sub.add_parser("claim")
     claim.add_argument("run_id")
@@ -113,7 +114,15 @@ def main() -> int:
                     requirements_hash=args.requirements_hash,
                 ),
                 args.gate,
-                {"retry_of": args.retry_of} if args.retry_of else None,
+                {
+                    key: value
+                    for key, value in {
+                        "retry_of": args.retry_of,
+                        "migration_note": args.migration_note,
+                    }.items()
+                    if value
+                }
+                or None,
                 args.artifact_name or ("result",),
             )
         )

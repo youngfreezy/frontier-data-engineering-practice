@@ -243,6 +243,26 @@ class ControlPlane:
             if existing.metadata.get("retry_of") == retry_of:
                 raise ControlPlaneError(f"{retry_of} already has a clean retry")
 
+    @classmethod
+    def _validate_requirements_migration(
+        cls,
+        state: dict[str, Any],
+        identity: RunIdentity,
+        metadata: dict[str, Any],
+    ) -> None:
+        note = str(metadata.get("migration_note") or "").strip()
+        for raw in state.get("runs", {}).values():
+            existing = RunRecord.from_dict(raw)
+            if existing.identity.task_id != identity.task_id:
+                continue
+            if existing.identity.requirements_hash == identity.requirements_hash:
+                continue
+            if not note:
+                raise ControlPlaneError(
+                    "requirements_hash changed for this task_id; "
+                    "record a migration_note and a new task contract"
+                )
+
     def register(
         self,
         identity: RunIdentity,
@@ -290,6 +310,7 @@ class ControlPlane:
             self._validate_retry(
                 state, identity, run_metadata, required, artifacts
             )
+            self._validate_requirements_migration(state, identity, run_metadata)
             now = utc_now()
             record = RunRecord(
                 identity=identity,

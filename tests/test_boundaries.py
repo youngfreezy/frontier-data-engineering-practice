@@ -64,6 +64,10 @@ def test_skill_embeds_production_gate_baseline_and_expanded_catalog() -> None:
         "Semantic equality",
         "Plan, scale, layout, and cost",
         "Snapshot",
+        "`join_cardinality`",
+        "`semantic_equality`",
+        "reviewer-checklist.md",
+        "migration_note",
     ):
         assert phrase in skill_text
     for gate in (
@@ -78,6 +82,7 @@ def test_skill_embeds_production_gate_baseline_and_expanded_catalog() -> None:
         "semantic_equality",
     ):
         assert f"`{gate}`" in gates_text
+    assert SKILL.joinpath("references", "reviewer-checklist.md").is_file()
 
 
 def test_root_package_is_dependency_free_and_practice_owns_duckdb() -> None:
