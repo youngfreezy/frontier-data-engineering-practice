@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 import duckdb
+import frontier_control_plane
 from frontier_control_plane import (
     ControlPlane,
     RunIdentity,
@@ -52,6 +53,8 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         database.unlink()
 
     fixture_paths = sorted(fixtures.glob("*.jsonl"))
+    control_source = Path(frontier_control_plane.__file__).resolve().parent
+    control_source_hash = files_hash(sorted(control_source.glob("*.py")))
     commit = git_value(root, "rev-parse", "HEAD")
     dirty = git_value(root, "status", "--porcelain")
     identity = RunIdentity(
@@ -62,11 +65,19 @@ def run_benchmark(args: argparse.Namespace) -> dict[str, Any]:
         starting_commit=commit,
         dataset_hash=files_hash(fixture_paths),
         environment_hash=environment_fingerprint(
-            {"duckdb": duckdb.__version__, "benchmark": "incremental-order-etl-v1"}
+            {
+                "duckdb": duckdb.__version__,
+                "benchmark": "incremental-order-etl-v1",
+                "control_plane_source": control_source_hash,
+            }
         ),
     )
     control = ControlPlane(args.state)
-    control.register(identity, REQUIRED_GATES, {"worktree": str(root)})
+    control.register(
+        identity,
+        REQUIRED_GATES,
+        {"worktree": str(root), "control_plane_source": control_source_hash},
+    )
     control.claim(args.run_id, args.owner)
     control.record_gate(
         args.run_id,
